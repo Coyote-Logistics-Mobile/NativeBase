@@ -36,8 +36,8 @@ class IconNB extends Component {
     }
   }
 
-  setIcon(iconType) {
-    if (iconType === undefined && get(this, 'context.theme')) {
+  setIcon(iconType, theme) {
+    if (iconType === undefined && theme === undefined) {
       // eslint-disable-next-line
       theme = get(this, 'context.theme');
     }
