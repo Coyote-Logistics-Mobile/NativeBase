@@ -1,4 +1,4 @@
-# NativeBase [![](http://slack.nativebase.io/badge.svg)](http://slack.nativebase.io/) [![Build Status](https://travis-ci.org/GeekyAnts/NativeBase.svg?branch=master)](https://travis-ci.org/GeekyAnts/NativeBase) [![npm version](https://badge.fury.io/js/native-base.svg)](https://badge.fury.io/js/native-base) [![npm downloads](https://img.shields.io/npm/dt/native-base.svg)](https://npm-stat.com/charts.html?package=native-base&from=2016-04-01&to=2018-02-17)
+# NativeBase [![Financial Contributors on Open Collective](https://opencollective.com/NativeBase/all/badge.svg?label=financial+contributors)](https://opencollective.com/NativeBase) [![](http://slack.nativebase.io/badge.svg)](http://slack.nativebase.io/) [![Build Status](https://travis-ci.org/GeekyAnts/NativeBase.svg?branch=master)](https://travis-ci.org/GeekyAnts/NativeBase) [![npm version](https://badge.fury.io/js/native-base.svg)](https://badge.fury.io/js/native-base) [![npm downloads](https://img.shields.io/npm/dt/native-base.svg)](https://npm-stat.com/charts.html?package=native-base&from=2016-04-01&to=2018-02-17)
 
 [![NPM](https://nodei.co/npm/native-base.png?downloads=true)](https://nodei.co/npm/native-base/)
 
@@ -47,52 +47,84 @@ What is really great with [NativeBase](https://nativebase.io/) is that you can u
 
 **a. Setup with pure React Native app**
 
-*Install NativeBase*
+*Install NativeBase:*
 
 ```js
 npm install native-base --save
 ```
-*Install Peer Dependencies*<br />
+*Install Peer Dependencies:*<br />
 The peer dependencies included from any npm packages does not automatically get installed. Your application will not depend on it explicitly.
 
 ```js
 react-native link
 ```
+Note: If you are using react-native version 0.60 or higher you don't need to link any package.
 
 You've successfully setup [NativeBase](https://nativebase.io/) with your [React Native](https://facebook.github.io/react-native/) app. Your React Native app is now all set to run on iOS and Android simulator.
 
 
-**b. Setup with CRNA**
+**b. Setup with Expo**
 
-*Create React Native project using the CRNA cli.* <br />
-CRNA helps you make React Native apps with no build configuration. Create React App works on macOS, Windows, and Linux. <br />
-Refer this link for additional information [CRNA](https://github.com/react-community/create-react-native-app)
+Expo helps you make React Native apps with no build configuration. It works on macOS, Windows, and Linux. <br />
+Refer this link for additional information on [Expo](https://docs.expo.io/)
 
-*Install NativeBase*
+*Install NativeBase:*
 ```js
 npm install native-base --save
 ```
-*Install @expo/vector-icons*
-```js
-npm install @expo/vector-icons --save
-```
+
 <br />
 
 **Note** <br />
-[NativeBase](https://nativebase.io/) uses some custom fonts that can be loaded using **loadAsync** function. Check out [this](https://docs.expo.io/versions/v15.0.0/sdk/font.html#expofontloadasyncname-url) expo link.
+[NativeBase](https://nativebase.io/) uses some custom fonts that can be loaded using **Font.loadAsync**. Check out the [Expo Font documentation](https://docs.expo.io/versions/latest/sdk/font/).
 <br />
-Syntax <br />
+
+*Install Expo Fonts:*
+```bash
+expo install expo-font
+```
+
+*App.js* <br />
 ```js
-async componentWillMount() {
-      await Expo.Font.loadAsync({
-        'Roboto': require('native-base/Fonts/Roboto.ttf'),
-        'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
-        'Ionicons': require('@expo/vector-icons/fonts/Ionicons.ttf'),
-      });
+import React from 'react';
+import { AppLoading } from 'expo';
+import { Container, Text } from 'native-base';
+import * as Font from 'expo-font';
+import { Ionicons } from '@expo/vector-icons';
+
+export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isReady: false,
+    };
+  }
+
+  async componentDidMount() {
+    await Font.loadAsync({
+      Roboto: require('native-base/Fonts/Roboto.ttf'),
+      Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
+      ...Ionicons.font,
+    });
+    this.setState({ isReady: true });
+  }
+
+  render() {
+    if (!this.state.isReady) {
+      return <AppLoading />;
+    }
+
+    return (
+      <Container>
+        <Text>Open up App.js to start working on your app!</Text>
+      </Container>
+    );
+  }
+}
 ```
 <br />
 
-Check out the [KitchenSink](https://expo.io/@geekyants/nativebasekitchensink) with CRNA for an example of the implementation.<br />
+Check out the [KitchenSink](https://expo.io/@geekyants/nativebasekitchensink) with Expo for an example of the implementation.<br />
 Find the [KitchenSink repo here](https://github.com/GeekyAnts/NativeBase-KitchenSink/tree/CRNA)
 
 **c. Setup with ignite-native-base-boilerplate**
@@ -102,19 +134,19 @@ You can run the following command to create the boilerplate, provided you have [
 ```
 ignite new appname --boilerplate native-base-boilerplate
 ```
-Go to app location
+Go to app location:
 ```sh
 cd appname
 ```
-For iOS run
+For iOS run:
 ```sh
 react-native run-ios
 ```
-For Android run
+For Android run:
 ```sh
 react-native run-android
 ```
-Refer [ignite-native-base-boilerplate](https://github.com/GeekyAnts/ignite-native-base-boilerplate) page for additional information
+Refer [ignite-native-base-boilerplate](https://github.com/GeekyAnts/ignite-native-base-boilerplate) page for additional information.
 
 ## 5. Components
 
@@ -122,8 +154,8 @@ Refer [ignite-native-base-boilerplate](https://github.com/GeekyAnts/ignite-nativ
 
 ## 6. NativeBase for Web
 
-NativeBase is now available for React web lovers. Check the [demo](https://nativebase.io/kitchen-sink-web-app/)
-Find the repo [here](https://github.com/GeekyAnts/NativeBase-KitchenSink/tree/web-support)
+NativeBase is now available for React web lovers. Check the [demo](https://nativebase.io/kitchen-sink-web-app/).
+Find the repo [here](https://github.com/GeekyAnts/NativeBase-KitchenSink/tree/web-support).
 
 
 ## 7. Compatibility Versions
@@ -139,7 +171,8 @@ Find the repo [here](https://github.com/GeekyAnts/NativeBase-KitchenSink/tree/we
 | v2.1.4 to v2.1.5 | v0.44.0 to v0.45.0 |
 | v2.2.0 | v0.44.0 to v0.45.0 |
 | v2.2.1 | v0.46.0 and above |
-| v2.3.0 to 2.4.1 | v0.46.0 and above *(does not support React 16.0.0-alpha.13)*|
+| v2.3.0 to 2.6.1 | v0.46.0 and above *(does not support React 16.0.0-alpha.13)*|
+| v2.7.0 | v0.56.0 and above |
 
 ## 8. [React Native Seed](https://reactnativeseed.com/)
 
@@ -182,3 +215,33 @@ Go through [NativeBase Docs](https://docs.nativebase.io/) to play with [NativeBa
 We are [GeekyAnts](https://geekyants.com/), a startup based in Bangalore, India with 50+ developers in strength. We have been very active in the React / React Native community where we have developed [StrapUI](https://www.strapui.com/) and [StartReact](https://startreact.com/). Our other products include [StartLaravel](http://startlaravel.com) and [StartAngular](http://startangular.com).
 
 Another major project by us is [BuilderX](https://builderx.io/?utm_source=github&utm_medium=nativebase&utm_campaign=nativebase), a screen design tool which codes React Native for you.
+
+## Contributors
+
+### Code Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/GeekyAnts/NativeBase/graphs/contributors"><img src="https://opencollective.com/NativeBase/contributors.svg?width=890&button=false" /></a>
+
+### Financial Contributors
+
+Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/NativeBase/contribute)]
+
+#### Individuals
+
+<a href="https://opencollective.com/NativeBase"><img src="https://opencollective.com/NativeBase/individuals.svg?width=890"></a>
+
+#### Organizations
+
+Support this project with your organization. Your logo will show up here with a link to your website. [[Contribute](https://opencollective.com/NativeBase/contribute)]
+
+<a href="https://opencollective.com/NativeBase/organization/0/website"><img src="https://opencollective.com/NativeBase/organization/0/avatar.svg"></a>
+<a href="https://opencollective.com/NativeBase/organization/1/website"><img src="https://opencollective.com/NativeBase/organization/1/avatar.svg"></a>
+<a href="https://opencollective.com/NativeBase/organization/2/website"><img src="https://opencollective.com/NativeBase/organization/2/avatar.svg"></a>
+<a href="https://opencollective.com/NativeBase/organization/3/website"><img src="https://opencollective.com/NativeBase/organization/3/avatar.svg"></a>
+<a href="https://opencollective.com/NativeBase/organization/4/website"><img src="https://opencollective.com/NativeBase/organization/4/avatar.svg"></a>
+<a href="https://opencollective.com/NativeBase/organization/5/website"><img src="https://opencollective.com/NativeBase/organization/5/avatar.svg"></a>
+<a href="https://opencollective.com/NativeBase/organization/6/website"><img src="https://opencollective.com/NativeBase/organization/6/avatar.svg"></a>
+<a href="https://opencollective.com/NativeBase/organization/7/website"><img src="https://opencollective.com/NativeBase/organization/7/avatar.svg"></a>
+<a href="https://opencollective.com/NativeBase/organization/8/website"><img src="https://opencollective.com/NativeBase/organization/8/avatar.svg"></a>
+<a href="https://opencollective.com/NativeBase/organization/9/website"><img src="https://opencollective.com/NativeBase/organization/9/avatar.svg"></a>

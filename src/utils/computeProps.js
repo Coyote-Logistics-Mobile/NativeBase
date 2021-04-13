@@ -1,19 +1,17 @@
-"use_strict";
-import _ from "lodash";
-import ReactNativePropRegistry from "react-native/Libraries/Renderer/shims/ReactNativePropRegistry";
-// For compatibility with RN 0.25
-// import ReactNativePropRegistry from "react-native/Libraries/ReactNative/ReactNativePropRegistry";
+'use_strict';
+import _ from 'lodash';
+import { StyleSheet } from 'react-native';
+
 module.exports = function(incomingProps, defaultProps) {
   // External props has a higher precedence
   let computedProps = {};
 
-  incomingProps = _.clone(incomingProps);
-  delete incomingProps.children;
+  const clonedIncomingProps = _.clone(incomingProps);
+  delete clonedIncomingProps.children;
 
   const incomingPropsStyle = incomingProps.style;
-  delete incomingProps.style;
+  delete clonedIncomingProps.style;
 
-  // console.log(defaultProps, incomingProps);
   if (incomingProps) {
     _.assign(computedProps, defaultProps, incomingProps);
   } else {
@@ -25,20 +23,19 @@ module.exports = function(incomingProps, defaultProps) {
     computedProps.style = {};
     if (Array.isArray(incomingPropsStyle)) {
       _.forEach(incomingPropsStyle, style => {
-        if (typeof style === "number") {
-          _.merge(computedPropsStyle, ReactNativePropRegistry.getByID(style));
+        if (typeof style === 'number') {
+          _.merge(computedPropsStyle, StyleSheet.flatten(style));
         } else {
           _.merge(computedPropsStyle, style);
         }
       });
-    } else if (typeof incomingPropsStyle === "number") {
-      computedPropsStyle = ReactNativePropRegistry.getByID(incomingPropsStyle);
+    } else if (typeof incomingPropsStyle === 'number') {
+      computedPropsStyle = StyleSheet.flatten(incomingPropsStyle);
     } else {
       computedPropsStyle = incomingPropsStyle;
     }
 
     _.merge(computedProps.style, defaultProps.style, computedPropsStyle);
   }
-  // console.log("computedProps ", computedProps);
   return computedProps;
 };

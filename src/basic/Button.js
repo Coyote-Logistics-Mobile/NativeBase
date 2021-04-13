@@ -1,112 +1,153 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+/* eslint-disable new-cap */
+import React from 'react';
+import PropTypes from 'prop-types';
 import {
   TouchableOpacity,
   Platform,
   View,
   TouchableNativeFeedback,
   StyleSheet
-} from "react-native";
-import { connectStyle } from "native-base-shoutem-theme";
-import variable from "./../theme/variables/platform";
-import { Text } from "./Text";
-import computeProps from "../utils/computeProps";
+} from 'react-native';
+import { connectStyle } from 'native-base-shoutem-theme';
 
-import mapPropsToStyleNames from "../utils/mapPropsToStyleNames";
+import variable from '../theme/variables/platform';
+import { PLATFORM } from '../theme/variables/commonColor';
+import mapPropsToStyleNames from '../utils/mapPropsToStyleNames';
 
-class Button extends Component {
+import { Text } from './Text';
+
+
+class Button extends React.PureComponent {
   static contextTypes = {
     theme: PropTypes.object
   };
 
+  setRoot(c){
+    this._root = c;
+  }
+
   getInitialStyle() {
     return {
       borderedBtn: {
-        borderWidth: this.props.bordered ? 1 : undefined,
+        borderWidth: this.props.bordered
+          ? variable.buttonDefaultBorderWidth
+          : undefined,
         borderRadius:
           this.props.rounded && this.props.bordered
             ? variable.borderRadiusLarge
-            : 2
+            : variable.buttonDefaultBorderRadius
       }
     };
   }
 
-  _root: React$Element<TouchableOpacity | TouchableNativeFeedback>;
-
   prepareRootProps() {
-    const defaultProps = {
-      style: this.getInitialStyle().borderedBtn
-    };
 
-    return computeProps(this.props, defaultProps);
+    const {style, ...others} = this.props;
+
+    return {
+      style: StyleSheet.flatten(StyleSheet.compose(this.getInitialStyle().borderedBtn, style)),
+      ...others
+    }
+
   }
+
   render() {
     const variables = this.context.theme
-      ? this.context.theme["@@shoutem.theme/themeStyle"].variables
+      ? this.context.theme['@@shoutem.theme/themeStyle'].variables
       : variable;
+
     const children =
-      Platform.OS === "ios"
+      Platform.OS === PLATFORM.IOS || !variables.buttonUppercaseAndroidText
         ? this.props.children
-        : React.Children.map(
-            this.props.children,
-            child =>
-              child && child.type === Text
-                ? React.cloneElement(child, {
-                    uppercase: variables.btnUppercaseAndroidText,
-                    ...child.props
-                  })
-                : child
+        : React.Children.map(this.props.children, child =>
+            child && child.type === Text
+              ? React.cloneElement(child, {
+                uppercase: this.props.buttonUppercaseAndroidText === false
+                ? false : variables.buttonUppercaseAndroidText,
+                ...child.props
+              })
+              : child
           );
+
+    const rootProps = this.prepareRootProps();
+
     if (
-      Platform.OS === "ios" ||
-      Platform.OS === "web" ||
+      Platform.OS === PLATFORM.IOS ||
+      Platform.OS === PLATFORM.WEB ||
       variables.androidRipple === false ||
-      Platform["Version"] < 21
+      Platform.Version < 21
     ) {
       return (
         <TouchableOpacity
-          {...this.prepareRootProps()}
-          ref={c => (this._root = c)}
+          {...rootProps}
+          ref={this.setRoot}
           activeOpacity={
-            this.props.activeOpacity > 0 ? this.props.activeOpacity : 0.5
+            this.props.activeOpacity > 0
+              ? this.props.activeOpacity
+              : variable.buttonDefaultActiveOpacity
           }
         >
           {children}
         </TouchableOpacity>
       );
-    } else {
-        if(this.props.rounded){
-            let buttonStyle = { ...this.prepareRootProps().style };
-            let buttonFlex = (this.props.full || this.props.block) ? 1 : buttonStyle.flex;
-            return (
-              <View style={[{ maxHeight:buttonStyle.height }, buttonStyle, { paddingTop: undefined, paddingBottom: undefined, flex:buttonFlex }]} >
-                <TouchableNativeFeedback
-                  ref={c => (this._root = c)}
-                  background={
-                    this.props.androidRippleColor
-                      ? TouchableNativeFeedback.Ripple(this.props.androidRippleColor, true)
-                      : TouchableNativeFeedback.Ripple(variables.androidRippleColor, true)
-                  }
-                  { ...this.prepareRootProps() }
-                >
-                  <View style={[styles.childContainer, { paddingTop: buttonStyle.paddingTop, paddingBottom: buttonStyle.paddingBottom, height: buttonStyle.height,flexGrow:buttonFlex }]}>
-                    {children}
-                  </View>
-                </TouchableNativeFeedback>
-              </View >
-            );  
-        } else {
-            return (
-              <TouchableNativeFeedback
-                ref={c => (this._root = c)}
-                onPress={this.props.onPress}
-                {...this.prepareRootProps()}
-              >
-                <View {...this.prepareRootProps()}>{children}</View>
-              </TouchableNativeFeedback>
-            );
-        }
     }
+    if (this.props.rounded) {
+      const buttonStyle = { ...rootProps.style };
+      const buttonFlex =
+        this.props.full || this.props.block
+          ? variable.buttonDefaultFlex
+          : buttonStyle.flex;
+      return (
+        <View
+          style={[
+            { maxHeight: buttonStyle.height },
+            buttonStyle,
+            { paddingTop: undefined, paddingBottom: undefined }
+          ]}
+        >
+          <TouchableNativeFeedback
+            ref={this.setRoot}
+            background={TouchableNativeFeedback.Ripple(
+              this.props.androidRippleColor || variables.androidRippleColor,
+              true
+            )}
+            {...rootProps}
+          >
+            <View
+              style={[
+                // eslint-disable-next-line no-use-before-define
+                styles.childContainer,
+                {
+                  paddingTop: buttonStyle.paddingTop,
+                  paddingBottom: buttonStyle.paddingBottom,
+                  height: buttonStyle.height,
+                  flexGrow: buttonFlex
+                }
+              ]}
+            >
+              {children}
+            </View>
+          </TouchableNativeFeedback>
+        </View>
+      );
+    }
+    return (
+      <TouchableNativeFeedback
+        ref={this.setRoot}
+        onPress={this.props.onPress}
+        background={
+          this.props.transparent
+            ? TouchableNativeFeedback.Ripple('transparent')
+            : TouchableNativeFeedback.Ripple(
+                variables.androidRippleColor,
+                false
+              )
+        }
+        {...rootProps}
+      >
+        <View {...rootProps}>{children}</View>
+      </TouchableNativeFeedback>
+    );
   }
 }
 
@@ -133,16 +174,16 @@ Button.propTypes = {
 };
 
 const styles = StyleSheet.create({
-	childContainer: {
-		flexShrink: 1,
-		flexDirection: 'row',
-		justifyContent: 'center',
-		alignItems: 'center'
-	},
+  childContainer: {
+    flexShrink: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
 });
 
 const StyledButton = connectStyle(
-  "NativeBase.Button",
+  'NativeBase.Button',
   {},
   mapPropsToStyleNames
 )(Button);
